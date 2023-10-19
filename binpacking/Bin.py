@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 import constant as const
 import numpy as np
@@ -13,6 +13,13 @@ class Bin:
     y: int
     z: int
     id: int
+    free_boxes: list[np.ndarray] = field(default_factory=list)
+    packed_boxes: list[np.ndarray] = field(default_factory=list)
+    packed_items: list[np.ndarray] = field(default_factory=list)
+    regulations: list[np.ndarray] = field(default_factory=list)
+
+    def __post_init__(self):
+        self.free_boxes.append(self.bin_in_numpy)
 
     @classmethod
     def from_numpy_array(cls, np_bin):
