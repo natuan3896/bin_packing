@@ -44,6 +44,7 @@ def compute_number_of_fit(box, item):
 def rotate(item, rotation):
     rotated_item = np.copy(item)
     rotated_item[:3] = item[const.ROTATION[rotation]]
+    rotated_item[const.ITEM_ROTATION] = rotation
     return rotated_item
 
 
@@ -172,15 +173,107 @@ def decompose_box(box, item):
     return boxes
 
 
+@njit(cache=True)
+def create_2d_array(array_1d, num_rows):
+    num_cols = array_1d.shape[0]
+    array_2d = np.empty((num_rows, num_cols), dtype=np.int_)
+    for i in range(num_rows):
+        for j in range(num_cols):
+            array_2d[i, j] = array_1d[j]
+    return array_2d
+
+
+@njit(cache=True)
+def convert_packed_box_to_item(box, item, fit_in_axis):
+    item_list = np.empty((0, 10), dtype=np.int_)
+    rotation = item[const.ITEM_ROTATION]
+    nb_item = item[const.ITEM_QUANTITY]
+
+    nb_fit = np.prod(fit_in_axis)
+
+    if nb_item > nb_fit:
+        nb_item = nb_fit
+
+    max_by_width = fit_in_axis[const.WIDTH]
+    max_by_height = fit_in_axis[const.HEIGHT]
+
+    nb_full_slice = math.floor(nb_item / (max_by_width * max_by_height))
+
+    length = item[const.ITEM_LENGTH]
+    width = item[const.ITEM_WIDTH]
+    height = item[const.ITEM_HEIGHT]
+
+    index = item[const.ITEM_INDEX]
+    axis_lock = item[const.ITEM_AXIS_LOCK]
+
+    for i in range(nb_full_slice):
+        for j in range(max_by_width):
+            qty = max_by_height
+
+            x = box[const.BIN_X] + i * item[const.ITEM_LENGTH]
+            y = box[const.BIN_Y] + j * item[const.ITEM_WIDTH]
+            z = box[const.BIN_Z]
+
+            temp_item = np.array(
+                [length, width, height, 1, rotation, x, y, z, index, axis_lock],
+                dtype=np.int_,
+            )
+
+            temp_item_column = create_2d_array(temp_item, qty)
+            for k in range(qty):
+                temp_item_column[k, const.ITEM_Z] = k * item[const.ITEM_HEIGHT] + z
+
+            item_list = np.concatenate((item_list, temp_item_column), axis=0)
+
+    nb_front_column = math.floor(
+        (nb_item % (max_by_width * max_by_height)) / max_by_height
+    )
+
+    for i in range(nb_front_column):
+        qty = max_by_height
+
+        x = box[const.BIN_X] + nb_full_slice * item[const.ITEM_LENGTH]
+        y = box[const.BIN_Y] + i * item[const.ITEM_WIDTH]
+        z = box[const.BIN_Z]
+
+        temp_item = np.array(
+            [length, width, height, 1, rotation, x, y, z, index, axis_lock],
+            dtype=np.int_,
+        )
+
+        temp_item_column = create_2d_array(temp_item, qty)
+        for k in range(qty):
+            temp_item_column[k, const.ITEM_Z] = k * item[const.ITEM_HEIGHT] + z
+
+        item_list = np.concatenate((item_list, temp_item_column), axis=0)
+
+    underfeed_column = nb_item % max_by_height
+    if underfeed_column > 0:
+        qty = underfeed_column
+
+        x = box[const.BIN_X] + nb_full_slice * item[const.ITEM_LENGTH]
+        y = box[const.BIN_Y] + nb_front_column * item[const.ITEM_WIDTH]
+        z = box[const.BIN_Z]
+
+        temp_item = np.array(
+            [length, width, height, 1, rotation, x, y, z, index, axis_lock],
+            dtype=np.int_,
+        )
+
+        temp_item_column = create_2d_array(temp_item, qty)
+        for k in range(qty):
+            temp_item_column[k, const.ITEM_Z] = k * item[const.ITEM_HEIGHT] + z
+
+        item_list = np.concatenate((item_list, temp_item_column), axis=0)
+
+    return item_list
+
+
 def get_random_color():
     return "#%06x" % rd.randint(0, 0xFFFFFF)
 
 
 def draw_boxes(boxes):
-    color_list = []
-    for i in range(1000):
-        color_list.append(get_random_color())
-
     data = []
 
     for box in boxes:
@@ -247,12 +340,3 @@ def draw_boxes(boxes):
     )
 
     fig.show()
-
-
-# b = decompose_box(
-#     np.array([10, 10, 10, 0, 0, 0, 0]), np.array([2, 3, 4, 20, 0, 0, 0, 0, 0, 0])
-# )
-#
-# draw_boxes(b)
-#
-# a = 1
