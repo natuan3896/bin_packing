@@ -1,10 +1,11 @@
 import math
 import random as rd
 
-import constant as const
 import numpy as np
 import plotly.graph_objects as go
 from numba import njit
+
+from . import constant as const
 
 
 @njit(cache=True)

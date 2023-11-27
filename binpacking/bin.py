@@ -1,7 +1,8 @@
 from dataclasses import dataclass, field
 
-import constant as const
 import numpy as np
+
+from . import constant as const
 
 
 @dataclass
