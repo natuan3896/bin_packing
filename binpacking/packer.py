@@ -109,6 +109,9 @@ class Packer:
 
         return len(remain_batch) == 0
 
+    def draw_bin(self, bin_index):
+        self.bins[bin_index].draw()
+
 
 def create_packer(data):
     bins = [
@@ -144,22 +147,3 @@ def create_packer(data):
     pk = Packer(bins, batches)
 
     return pk
-
-
-# packer = Packer(
-#     [Bin.from_numpy_array(np.array([10, 10, 10, 0, 0, 0, 0]))],
-#     [
-#         [
-#             Item.from_numpy_array(np.array([2, 3, 4, 40, 0, 0, 0, 0, 0, 1])),
-#             Item.from_numpy_array(np.array([1, 1, 2, 20, 0, 0, 0, 0, 1, 1])),
-#             Item.from_numpy_array(np.array([2, 2, 2, 20, 0, 0, 0, 0, 2, 1])),
-#         ]
-#     ],
-# )
-#
-#
-# packer.pack(0,0)
-#
-# # cl.draw_boxes(packer.bins[0].free_boxes)
-#
-# packer.bins[0].draw_bin()
