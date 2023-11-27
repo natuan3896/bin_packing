@@ -1,11 +1,12 @@
 import copy
 from dataclasses import dataclass
 
-import compute_loading as cl
-import constant as const
 import numpy as np
 
 from binpacking import Bin, Item
+
+from . import compute_loading as cl
+from . import constant as const
 
 
 @dataclass
@@ -107,6 +108,42 @@ class Packer:
         remain_batch = self.pack_into_bin(chosen_bin, batch)
 
         return len(remain_batch) == 0
+
+
+def create_packer(data):
+    bins = [
+        Bin.from_numpy_array(
+            np.array([bi["length"], bi["width"], bi["height"], 0, 0, 0, bi["index"]])
+        )
+        for bi in data["bins"]
+    ]
+
+    batches = [
+        [
+            Item.from_numpy_array(
+                np.array(
+                    [
+                        b["length"],
+                        b["width"],
+                        b["height"],
+                        b["quantity"],
+                        0,
+                        0,
+                        0,
+                        0,
+                        b["index"],
+                        b["axis_lock"],
+                    ]
+                )
+            )
+            for b in temp
+        ]
+        for temp in data["batches"]
+    ]
+
+    pk = Packer(bins, batches)
+
+    return pk
 
 
 # packer = Packer(
