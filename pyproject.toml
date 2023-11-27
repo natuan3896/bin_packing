@@ -1,8 +1,8 @@
 [tool.poetry]
-name = "bin-packing"
+name = "binpacking"
 version = "0.1.0"
 description = ""
-authors = ["Your Name <you@example.com>"]
+authors = ["Nguyen Anh Tuan <nanhtuan3896@gmail.com>"]
 license = "MIT"
 readme = "README.md"
 
