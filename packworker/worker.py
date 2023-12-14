@@ -3,7 +3,7 @@ from dataclasses import dataclass
 
 import numpy as np
 
-from binpacking import Bin, Item
+from packworker import Bin, Item
 
 from . import compute_loading as cl
 from . import constant as const
@@ -114,35 +114,9 @@ class Packer:
 
 
 def create_packer(data):
-    bins = [
-        Bin.from_numpy_array(
-            np.array([bi["length"], bi["width"], bi["height"], 0, 0, 0, bi["index"]])
-        )
-        for bi in data["bins"]
-    ]
+    bins = [Bin.from_dict(bi) for bi in data["bins"]]
 
-    batches = [
-        [
-            Item.from_numpy_array(
-                np.array(
-                    [
-                        b["length"],
-                        b["width"],
-                        b["height"],
-                        b["quantity"],
-                        0,
-                        0,
-                        0,
-                        0,
-                        b["index"],
-                        b["axis_lock"],
-                    ]
-                )
-            )
-            for b in temp
-        ]
-        for temp in data["batches"]
-    ]
+    batches = [[Item.from_dict(b) for b in temp] for temp in data["batches"]]
 
     pk = Packer(bins, batches)
 

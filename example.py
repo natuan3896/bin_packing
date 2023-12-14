@@ -1,6 +1,6 @@
 import random as rd
 
-import binpacking as bp
+import packworker as bp
 
 
 def create_data_model():
@@ -33,7 +33,7 @@ def create_data_model():
                     "length": rd.randint(1, 5),
                     "width": rd.randint(1, 5),
                     "height": rd.randint(1, 5),
-                    "quantity": rd.randint(5, 10),
+                    "quantity": rd.randint(100, 500),
                     "index": j * 10 + i,
                     "axis_lock": rd.randint(0, 1),
                 }

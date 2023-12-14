@@ -36,6 +36,10 @@ class Bin:
             np_bin[const.BIN_ID],
         )
 
+    @classmethod
+    def from_dict(cls, bi):
+        return cls(bi["length"], bi["width"], bi["height"], 0, 0, 0, bi["index"])
+
     @property
     def bin_in_numpy(self):
         return np.array(

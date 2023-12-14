@@ -33,6 +33,31 @@ class Item:
             np_item[const.ITEM_AXIS_LOCK],
         )
 
+    @classmethod
+    def from_dict(cls, b):
+        return cls(
+            b["index"],
+            b["length"],
+            b["width"],
+            b["height"],
+            b["quantity"],
+            0,
+            0,
+            0,
+            0,
+            b["axis_lock"],
+        )
+
+    def to_dict(self):
+        return {
+            "length": self.length,
+            "width": self.width,
+            "height": self.height,
+            "quantity": self.quantity,
+            "index": self.index,
+            "axis_lock": self.axis_lock,
+        }
+
     @property
     def item_in_numpy(self):
         return np.array(

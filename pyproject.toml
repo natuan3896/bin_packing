@@ -1,6 +1,6 @@
 [tool.poetry]
-name = "binpacking"
-version = "0.1.0"
+name = "packworker"
+version = "0.1.3"
 description = ""
 authors = ["Nguyen Anh Tuan <nanhtuan3896@gmail.com>"]
 license = "MIT"
